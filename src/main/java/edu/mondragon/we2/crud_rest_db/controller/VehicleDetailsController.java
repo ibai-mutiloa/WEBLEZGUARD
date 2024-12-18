@@ -41,6 +41,12 @@ public class VehicleDetailsController {
         return vehicleDetailsRepository.findAll();
     }
 
+    // Método para obtener todos los registros de `vehicle_date_relationship`
+    @GetMapping("/vehicle-date-relationships")
+    public List<VehicleDateRelationship> getAllVehicleDateRelationships() {
+        return vehicleDateRelationshipRepository.findAll();
+    }
+
     // Get vehicle details by license plate
     @GetMapping("/{licensePlate}")
     public ResponseEntity<VehicleDetails> getVehicleByLicensePlate(@PathVariable String licensePlate) {
@@ -155,5 +161,25 @@ public class VehicleDetailsController {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al registrar la detección.");
         }
-    }    
+    }  
+    @GetMapping("/vehicle_date_relation/filtered")
+    public ResponseEntity<List<VehicleDateRelationship>> getVehicleDateRelationship(@RequestParam String licensePlate, @RequestParam String date) {
+    try {
+        // Convert the date string to LocalDate
+        LocalDate parsedDate = LocalDate.parse(date);
+
+        // Find the relationship between the vehicle and the date
+        List<VehicleDateRelationship> relationships = vehicleDateRelationshipRepository
+            .findByLicensePlateAndDatePassed(licensePlate, parsedDate);
+
+        if (!relationships.isEmpty()) {
+            return ResponseEntity.ok(relationships);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+}
 }
