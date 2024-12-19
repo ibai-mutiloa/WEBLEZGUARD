@@ -87,16 +87,35 @@ function insertTrafficData(data) {
   data.forEach(item => {
     const row = tableBody.insertRow();
 
-    row.insertCell().textContent = item.licensePlate || 'N/A'; // License Plate
-    row.insertCell().textContent = item.vehicleType || 'N/A'; // Vehicle Type
-    row.insertCell().textContent = item.brand || 'N/A'; // Brand
-    row.insertCell().textContent = item.model || 'N/A'; // Model
-    row.insertCell().textContent = item.year || 'N/A'; // Year
-    row.insertCell().textContent = item.fuel || 'N/A'; // Fuel
-    row.insertCell().textContent = item.engineType || 'N/A'; // Engine Type
-    row.insertCell().textContent = item.emissionsGPerKM || 'N/A'; // Emissions (g/km)
-    row.insertCell().textContent = item.color || 'N/A'; // Color
-    row.insertCell().textContent = item.datePassed || 'N/A'; // Date Passed
+    // Convert emissions to a number and check if it's valid
+    const emissions = parseFloat(item.emissionsGPerKM);
+    console.log(`Vehicle: ${item.licensePlate}, Emissions: ${emissions}`);
+
+    // Highlight or print for emissions > 140g
+    if (!isNaN(emissions) && emissions > 140) {
+      row.classList.add('high-emissions'); // Add a class
+      console.warn(`High emissions detected: ${item.licensePlate} with ${emissions}g/km`);
+    }
+
+    // Define cell data with proper type handling
+    const cellData = [
+      item.licensePlate,
+      item.vehicleType,
+      item.brand,
+      item.model,
+      item.year,
+      item.fuel,
+      item.engineType,
+      item.emissionsGPerKM,
+      item.color,
+      item.datePassed
+    ];
+
+    // Create cells with proper null/undefined handling
+    cellData.forEach(data => {
+      const cell = row.insertCell();
+      cell.textContent = data || 'N/A';
+    });
   });
 }
 

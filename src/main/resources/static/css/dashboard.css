@@ -153,3 +153,11 @@ main {
   border-color: transparent;
   box-shadow: 0 0 0 3px rgba(255, 255, 255, .25);
 }
+#trafficDataTable tbody tr.high-emissions,
+#trafficDataTable tbody tr.high-emissions td {
+  background-color: yellow !important; /* Force the background color */
+  font-weight: bold;
+  color: #000000;
+}
+
+
