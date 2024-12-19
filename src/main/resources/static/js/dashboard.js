@@ -45,6 +45,9 @@ window.onload = function () {
 
     // Generate charts with data
     generateFuelCharts(mergedData); // Use mergedData for accurate chart generation
+    generateVehicleCountsChart(mergedData);
+    generateEmissionsChart(mergedData);
+    generateVehicleTypeChart(mergedData);
   })
   .catch(error => {
     console.error('Error fetching traffic data:', error);
@@ -98,7 +101,25 @@ function insertTrafficData(data) {
 }
 
 // Function to generate fuel comparison charts for two dates
+let fuelChart; // Global variable for the fuel comparison chart
+let vehicleCountsChart; // Global variable for the vehicle counts chart
+let emissionsChart;
+let vehicleTypeChart;
+
+// Helper function to generate random colors
+function getRandomColor(alpha = 1) {
+  const r = Math.floor(Math.random() * 256);
+  const g = Math.floor(Math.random() * 256);
+  const b = Math.floor(Math.random() * 256);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+// Function to generate the Fuel Comparison Chart
 function generateFuelCharts(data) {
+  if (fuelChart) {
+    fuelChart.destroy(); // Destroy existing chart instance
+  }
+
   // Aggregate the vehicle count by fuel type and date
   const fuelDataByDate = {};
 
@@ -117,11 +138,9 @@ function generateFuelCharts(data) {
     fuelDataByDate[date][fuel] += 1; // Increment count for this fuel type
   });
 
-  console.log(fuelDataByDate); // Check the aggregated data
-
-  // Prepare data for chart
-  const dates = Object.keys(fuelDataByDate); // Get all dates (keys)
-  const fuelTypes = new Set(); // Set to store unique fuel types
+  // Prepare data for the chart
+  const dates = Object.keys(fuelDataByDate); // Get all dates
+  const fuelTypes = new Set();
 
   // Collect all unique fuel types
   dates.forEach(date => {
@@ -130,29 +149,33 @@ function generateFuelCharts(data) {
     });
   });
 
-  const fuelLabels = Array.from(fuelTypes); // Convert set to array for chart
+  const fuelLabels = Array.from(fuelTypes);
   const datasets = dates.map(date => {
-    const counts = fuelLabels.map(fuel => fuelDataByDate[date][fuel] || 0); // Fill with 0s if no vehicles for a fuel type
+    const counts = fuelLabels.map(fuel => fuelDataByDate[date][fuel] || 0);
     return {
       label: date,
       data: counts,
-      backgroundColor: getRandomColor(),
-      borderColor: getRandomColor(),
+      backgroundColor: getRandomColor(0.5),
+      borderColor: getRandomColor(1),
       borderWidth: 1
     };
   });
 
   const ctx = document.getElementById('fuelComparisonChart').getContext('2d');
 
-  // Create the chart
-  new Chart(ctx, {
+  fuelChart = new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: fuelLabels, // Fuel types as X-axis labels
-      datasets: datasets // Each date will have its own dataset
+      labels: fuelLabels,
+      datasets: datasets
     },
     options: {
       responsive: true,
+      plugins: {
+        legend: {
+          position: 'top'
+        }
+      },
       scales: {
         y: {
           beginAtZero: true
@@ -162,14 +185,242 @@ function generateFuelCharts(data) {
   });
 }
 
-// Helper function to generate random colors for chart
-function getRandomColor() {
-  const letters = '0123456789ABCDEF';
-  let color = '#';
-  for (let i = 0; i < 6; i++) {
-    color += letters[Math.floor(Math.random() * 16)];
+// Function to generate the Vehicle Counts Chart
+function generateVehicleCountsChart(data) {
+  if (vehicleCountsChart) {
+    vehicleCountsChart.destroy(); // Destroy existing chart instance
   }
-  return color;
+
+  // Aggregate the total vehicle counts by date
+  const vehicleCountsByDate = {};
+
+  data.sort((a, b) => new Date(a.datePassed) - new Date(b.datePassed));
+
+  data.forEach(vehicle => {
+    const date = vehicle.datePassed;
+
+    if (!vehicleCountsByDate[date]) {
+      vehicleCountsByDate[date] = 0; // Initialize count
+    }
+
+    vehicleCountsByDate[date] += 1; // Increment count
+  });
+
+  console.log('Vehicle counts by date:', vehicleCountsByDate);
+
+  // Prepare data for the chart
+  const labels = Object.keys(vehicleCountsByDate); // Dates as labels
+  const counts = Object.values(vehicleCountsByDate); // Vehicle counts as data
+
+  const ctx = document.getElementById('vehicleCountsChart').getContext('2d');
+
+  vehicleCountsChart = new Chart(ctx, {
+    type: 'line', // Line chart for vehicle counts
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Total Vehicles',
+          data: counts,
+          backgroundColor: getRandomColor(0.3),
+          borderColor: getRandomColor(1),
+          borderWidth: 2,
+          fill: true // Makes the area under the line shaded
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'top'
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+}
+function generateEmissionsChart(data) {
+  if (emissionsChart) {
+    emissionsChart.destroy(); // Destroy existing chart instance
+  }
+
+  // Aggregate total emissions by date
+  const emissionsByDate = {};
+  
+  // Sort data by date first
+  data.sort((a, b) => new Date(a.datePassed) - new Date(b.datePassed));
+
+  // Calculate total emissions by date
+  data.forEach(vehicle => {
+    const date = new Date(vehicle.datePassed).toISOString().split('T')[0];
+    const emissions = parseFloat(vehicle.emissionsGPerKM) || 0;
+    
+    if (!emissionsByDate[date]) {
+      emissionsByDate[date] = 0;
+    }
+    emissionsByDate[date] += emissions;
+  });
+
+  console.log('Emissions by date:', emissionsByDate);
+
+  // Convert the data for the chart
+  const labels = Object.keys(emissionsByDate).sort();
+  const emissionsData = labels.map(date => emissionsByDate[date].toFixed(2)); // Round to 2 decimal places
+
+  const ctx = document.getElementById('emissionsChart').getContext('2d');
+
+  emissionsChart = new Chart(ctx, {
+    type: 'bar', // Using bar chart for emissions
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Total Emissions (g/km)',
+        data: emissionsData,
+        backgroundColor: 'rgba(255, 99, 132, 0.2)', // Light red
+        borderColor: 'rgba(255, 99, 132, 1)', // Red
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'top',
+        },
+        title: {
+          display: true,
+          text: 'Daily Total Emissions'
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return `Total Emissions: ${context.parsed.y.toFixed(2)} g/km`;
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Total Emissions (g/km)'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Date'
+          }
+        }
+      }
+    }
+  });
+}
+function generateVehicleTypeChart(data) {
+  if (vehicleTypeChart) {
+    vehicleTypeChart.destroy();
+  }
+
+  // Aggregate vehicle count by type and date
+  const typeDataByDate = {};
+
+  // Sort data by date first
+  data.sort((a, b) => new Date(a.datePassed) - new Date(b.datePassed));
+
+  // Count vehicles by type for each date
+  data.forEach(vehicle => {
+    const date = new Date(vehicle.datePassed).toISOString().split('T')[0];
+    const type = vehicle.vehicleType || 'Unknown';
+
+    if (!typeDataByDate[date]) {
+      typeDataByDate[date] = {};
+    }
+
+    if (!typeDataByDate[date][type]) {
+      typeDataByDate[date][type] = 0;
+    }
+
+    typeDataByDate[date][type]++;
+  });
+
+  // Get unique dates and vehicle types
+  const dates = Object.keys(typeDataByDate).sort();
+  const vehicleTypes = new Set();
+  
+  dates.forEach(date => {
+    Object.keys(typeDataByDate[date]).forEach(type => {
+      vehicleTypes.add(type);
+    });
+  });
+
+  // Convert to array and sort vehicle types
+  const typeLabels = Array.from(vehicleTypes).sort();
+
+  // Create datasets for each date
+  const datasets = dates.map(date => {
+    const counts = typeLabels.map(type => typeDataByDate[date][type] || 0);
+    const color = getRandomColor(0.7);
+    return {
+      label: date,
+      data: counts,
+      backgroundColor: color,
+      borderColor: color,
+      borderWidth: 1
+    };
+  });
+
+  const ctx = document.getElementById('vehicleTypeChart').getContext('2d');
+
+  vehicleTypeChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: typeLabels,
+      datasets: datasets
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'top',
+        },
+        title: {
+          display: true,
+          text: 'Vehicle Types by Date'
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return `${context.dataset.label}: ${context.parsed.y} vehicles`;
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Number of Vehicles'
+          },
+          ticks: {
+            stepSize: 1
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Vehicle Type'
+          }
+        }
+      }
+    }
+  });
 }
 
 // Function to switch tabs
