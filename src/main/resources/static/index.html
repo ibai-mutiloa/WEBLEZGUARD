@@ -167,13 +167,16 @@
         </table>
       </div>
 
-      <!-- LEZ Recommendation Section -->
-      <div class="lez-recommendation-section">
+      <div class="lez-recommendation-section active">
         <h2>LEZ Recommendation</h2>
-        <p>Based on the selected traffic data, we recommend the following:</p>
-        <div class="progress">
-          <div id="recommendationProgress" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+        <p>To know the emissions in future days and how it reduces by a LEZ zone, choose a date:</p>
+
+        <!-- Calendar input and button -->
+        <div class="mb-3">
+          <label for="lezDate" class="form-label">Select a date:</label>
+          <input type="date" class="form-control" id="lezDate">
         </div>
+        <button class="btn btn-primary" id="submitRecommendation">Submit Recommendation</button>
       </div>
 
     </main>
@@ -190,6 +193,20 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Get today's date
+  const today = new Date();
+  
+  // Set the date to tomorrow
+  today.setDate(today.getDate() + 1);
+  
+  // Format the date to YYYY-MM-DD
+  const tomorrow = today.toISOString().split('T')[0];
+  
+  // Set the min attribute to tomorrow's date
+  document.getElementById('lezDate').setAttribute('min', tomorrow);
+</script>
+
 <!-- Dashboard-specific JavaScript -->
 <script src="js/dashboard.js"></script>
 </body>
