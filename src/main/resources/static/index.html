@@ -166,19 +166,24 @@
           </tbody>
         </table>
       </div>
-
       <div class="lez-recommendation-section active">
         <h2>LEZ Recommendation</h2>
         <p>To know the emissions in future days and how it reduces by a LEZ zone, choose a date:</p>
-
-        <!-- Calendar input and button -->
+    
+        <!-- Calendar input and email input -->
         <div class="mb-3">
-          <label for="lezDate" class="form-label">Select a date:</label>
-          <input type="date" class="form-control" id="lezDate">
+            <label for="lezDate" class="form-label">Select a date:</label>
+            <input type="date" class="form-control" id="lezDate">
         </div>
+    
+        <div class="mb-3">
+            <label for="userEmail" class="form-label">Enter your email:</label>
+            <input type="email" class="form-control" id="userEmail" placeholder="example@example.com" required>
+        </div>
+    
+        <!-- Submit button -->
         <button class="btn btn-primary" id="submitRecommendation">Submit Recommendation</button>
-      </div>
-
+    </div>
     </main>
   </div>
 </div>
