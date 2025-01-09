@@ -4,7 +4,7 @@ pipeline {
 
     triggers {
 
-        githubPush() // utiliza push en vez de tag
+        githubPush()
 
     }
 
@@ -56,7 +56,7 @@ pipeline {
 
                 }
 
-            } 
+            }
 
         }
 
@@ -87,7 +87,7 @@ pipeline {
                             fi
                             
                             ${sonarScannerPath} \
-                                -Dsonar.projectKey=StaticAnalisis_LEZGuard_WEB \ 
+                                -Dsonar.projectKey=StaticAnalisis_LEZGuard_WEB \
                                 -Dsonar.sources=. \
                                 -Dsonar.host.url=http://localhost:9000 \
                                 -Dsonar.java.binaries=* \
