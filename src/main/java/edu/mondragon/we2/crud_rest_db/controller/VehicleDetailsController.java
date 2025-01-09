@@ -9,6 +9,8 @@ import edu.mondragon.we2.crud_rest_db.model.Location;
 import edu.mondragon.we2.crud_rest_db.model.LocationRepository;
 import edu.mondragon.we2.crud_rest_db.model.Municipality;
 import edu.mondragon.we2.crud_rest_db.model.MunicipalityRepository;
+import edu.mondragon.we2.crud_rest_db.model.Prediction;
+import edu.mondragon.we2.crud_rest_db.model.PredictionRepository;
 import edu.mondragon.we2.crud_rest_db.model.VehicleDateRelationshipRepository;
 import edu.mondragon.we2.crud_rest_db.model.VehicleDateRelationship;
 import edu.mondragon.we2.crud_rest_db.model.VehicleDetails;
@@ -22,6 +24,9 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/vehicles")
 public class VehicleDetailsController {
+
+    @Autowired
+    private PredictionRepository predictionRepository;
 
     @Autowired
     private VehicleDetailsRepository vehicleDetailsRepository;
@@ -162,6 +167,24 @@ public class VehicleDetailsController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al registrar la detección.");
         }
     }  
+    @PostMapping("/prediction")
+    public ResponseEntity<Prediction> insertPrediction(@RequestBody Prediction prediction) {
+        try {
+            // Validar que los datos sean correctos
+            if (prediction.getDate() == null || prediction.getPredZbe() == null || prediction.getPredCo2() == null) {
+                return ResponseEntity.badRequest().build(); // 400 Bad Request si falta algún dato
+            }
+
+            // Guardar la predicción en la base de datos
+            Prediction savedPrediction = predictionRepository.save(prediction);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedPrediction); // 201 Created
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); // 500 Internal Server Error
+        }
+    }
+    
     @GetMapping("/vehicle_date_relation/filtered")
     public ResponseEntity<List<VehicleDateRelationship>> getVehicleDateRelationship(@RequestParam String licensePlate, @RequestParam String date) {
     try {
@@ -181,5 +204,12 @@ public class VehicleDetailsController {
         e.printStackTrace();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
+    }
+    @GetMapping("/getByDate")
+    public ResponseEntity<List<Prediction>> getPredictionsByDate(@RequestParam("date") String date) {
+        LocalDate parsedDate = LocalDate.parse(date);
+        List<Prediction> predictions = predictionRepository.findByDate(parsedDate);
+        return ResponseEntity.ok(predictions);
+    }
 }
-}
+

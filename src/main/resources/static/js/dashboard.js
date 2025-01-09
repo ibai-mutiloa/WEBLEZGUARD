@@ -65,6 +65,99 @@ window.onload = function () {
   document.getElementById('lez-recommendation-link').addEventListener('click', function () {
     switchTab('lez-recommendation');
   });
+  /*
+  document.getElementById('submitRecommendation').addEventListener('click', function() {
+    // Obtener la fecha seleccionada
+    const selectedDate = document.getElementById('lezDate').value;
+  
+    // Verificar si la fecha fue seleccionada
+    if (!selectedDate) {
+      alert("Please select a date.");
+      return;
+    }
+  
+    // Realizar la solicitud al backend
+    fetch(`/api/predictions/getByDate?date=${selectedDate}`)
+      .then(response => response.json())
+      .then(data => {
+        // Procesar los datos y actualizar la interfaz de usuario
+        if (data && data.length > 0) {
+          // Suponiendo que la tabla es la que quieres actualizar
+          const tableBody = document.querySelector('#trafficDataTable tbody');
+          tableBody.innerHTML = ''; // Limpiar la tabla antes de agregar los nuevos datos
+  
+          data.forEach(prediction => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${prediction.id}</td>
+              <td>${prediction.date}</td>
+              <td>${prediction.predZbe}</td>
+              <td>${prediction.predCo2}</td>
+            `;
+            tableBody.appendChild(row);
+          });
+        } else {
+          alert("No predictions found for the selected date.");
+        }
+      })
+      .catch(error => {
+        console.error("Error fetching predictions:", error);
+        alert("An error occurred while fetching the data.");
+      });
+  });
+  */
+  document.getElementById('submitRecommendation').addEventListener('click', function() {
+    // Obtener la fecha seleccionada
+    const selectedDate = document.getElementById('lezDate').value;
+    const userEmail = document.getElementById('userEmail').value; // Suponiendo que tienes un input para el email
+
+    // Verificar si la fecha y el correo fueron seleccionados
+    if (!selectedDate || !userEmail) {
+        alert("Please select a date and provide an email.");
+        return;
+    }
+
+    // Realizar la solicitud GET al backend para obtener las predicciones
+    fetch(`http://localhost:8080/api/vehicles/getByDate?date=${selectedDate}`)
+        .then(response => response.json())
+        .then(predictions => {
+            if (predictions.length > 0) {
+                // Tomamos la primera predicción como ejemplo
+                const predictedZbe = predictions[0].predZbe;  // Ajusta según la estructura real de los datos
+                const predictedCo2 = predictions[0].predCo2;
+
+                // Enviar los datos a Node-RED para enviar el correo
+                fetch('http://localhost:1880/sendPredictionEmail', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        date: selectedDate,
+                        email: userEmail,
+                        predZbe: predictedZbe,
+                        predCo2: predictedCo2
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Email sent:', data);
+                })
+                .catch(error => {
+                    console.error('Error sending email:', error);
+                });
+
+            } else {
+                alert("No predictions found for the selected date.");
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching predictions:', error);
+            alert("An error occurred while fetching predictions.");
+        });
+});
+
+  
 };
 
 // Function to insert data into the table
@@ -87,16 +180,35 @@ function insertTrafficData(data) {
   data.forEach(item => {
     const row = tableBody.insertRow();
 
-    row.insertCell().textContent = item.licensePlate || 'N/A'; // License Plate
-    row.insertCell().textContent = item.vehicleType || 'N/A'; // Vehicle Type
-    row.insertCell().textContent = item.brand || 'N/A'; // Brand
-    row.insertCell().textContent = item.model || 'N/A'; // Model
-    row.insertCell().textContent = item.year || 'N/A'; // Year
-    row.insertCell().textContent = item.fuel || 'N/A'; // Fuel
-    row.insertCell().textContent = item.engineType || 'N/A'; // Engine Type
-    row.insertCell().textContent = item.emissionsGPerKM || 'N/A'; // Emissions (g/km)
-    row.insertCell().textContent = item.color || 'N/A'; // Color
-    row.insertCell().textContent = item.datePassed || 'N/A'; // Date Passed
+    // Convert emissions to a number and check if it's valid
+    const emissions = parseFloat(item.emissionsGPerKM);
+    console.log(`Vehicle: ${item.licensePlate}, Emissions: ${emissions}`);
+
+    // Highlight or print for emissions > 140g
+    if (!isNaN(emissions) && emissions > 140) {
+      row.classList.add('high-emissions'); // Add a class
+      console.warn(`High emissions detected: ${item.licensePlate} with ${emissions}g/km`);
+    }
+
+    // Define cell data with proper type handling
+    const cellData = [
+      item.licensePlate,
+      item.vehicleType,
+      item.brand,
+      item.model,
+      item.year,
+      item.fuel,
+      item.engineType,
+      item.emissionsGPerKM,
+      item.color,
+      item.datePassed
+    ];
+
+    // Create cells with proper null/undefined handling
+    cellData.forEach(data => {
+      const cell = row.insertCell();
+      cell.textContent = data || 'N/A';
+    });
   });
 }
 
@@ -443,3 +555,4 @@ function switchTab(tabName) {
     document.getElementById('lez-recommendation-link').classList.add('active');
   }
 }
+
