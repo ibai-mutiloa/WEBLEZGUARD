@@ -5,11 +5,11 @@ window.onload = function () {
 
   // Fetch data from APIs
   Promise.all([ 
-    fetch('http://localhost:8080/api/vehicles').then(response => {
+    fetch('http://lezguard.duckdns.org:8080/api/vehicles').then(response => {
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
       return response.json();
     }),
-    fetch('http://localhost:8080/api/vehicles/vehicle-date-relationships').then(response => {
+    fetch('http://lezguard.duckdns.org:8080/api/vehicles/vehicle-date-relationships').then(response => {
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
       return response.json();
     })
@@ -65,96 +65,53 @@ window.onload = function () {
   document.getElementById('lez-recommendation-link').addEventListener('click', function () {
     switchTab('lez-recommendation');
   });
-  /*
   document.getElementById('submitRecommendation').addEventListener('click', function() {
-    // Obtener la fecha seleccionada
+    // Get the selected values
     const selectedDate = document.getElementById('lezDate').value;
-  
-    // Verificar si la fecha fue seleccionada
-    if (!selectedDate) {
-      alert("Please select a date.");
-      return;
-    }
-  
-    // Realizar la solicitud al backend
-    fetch(`/api/predictions/getByDate?date=${selectedDate}`)
-      .then(response => response.json())
-      .then(data => {
-        // Procesar los datos y actualizar la interfaz de usuario
-        if (data && data.length > 0) {
-          // Suponiendo que la tabla es la que quieres actualizar
-          const tableBody = document.querySelector('#trafficDataTable tbody');
-          tableBody.innerHTML = ''; // Limpiar la tabla antes de agregar los nuevos datos
-  
-          data.forEach(prediction => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-              <td>${prediction.id}</td>
-              <td>${prediction.date}</td>
-              <td>${prediction.predZbe}</td>
-              <td>${prediction.predCo2}</td>
-            `;
-            tableBody.appendChild(row);
-          });
-        } else {
-          alert("No predictions found for the selected date.");
-        }
-      })
-      .catch(error => {
-        console.error("Error fetching predictions:", error);
-        alert("An error occurred while fetching the data.");
-      });
-  });
-  */
-  document.getElementById('submitRecommendation').addEventListener('click', function() {
-    // Obtener la fecha seleccionada
-    const selectedDate = document.getElementById('lezDate').value;
-    const userEmail = document.getElementById('userEmail').value; // Suponiendo que tienes un input para el email
+    const userEmail = document.getElementById('userEmail').value;
+    const addEvent = document.getElementById('addEventCheckbox').checked;
 
-    // Verificar si la fecha y el correo fueron seleccionados
+    // Verify if date and email were selected
     if (!selectedDate || !userEmail) {
         alert("Please select a date and provide an email.");
         return;
     }
 
-    // Realizar la solicitud GET al backend para obtener las predicciones
-    fetch(`http://localhost:8080/api/vehicles/getByDate?date=${selectedDate}`)
-        .then(response => response.json())
-        .then(predictions => {
-            if (predictions.length > 0) {
-                // Tomamos la primera predicción como ejemplo
-                const predictedZbe = predictions[0].predZbe;  // Ajusta según la estructura real de los datos
-                const predictedCo2 = predictions[0].predCo2;
-
-                // Enviar los datos a Node-RED para enviar el correo
-                fetch('http://localhost:1880/sendPredictionEmail', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        date: selectedDate,
-                        email: userEmail,
-                        predZbe: predictedZbe,
-                        predCo2: predictedCo2
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Email sent:', data);
-                })
-                .catch(error => {
-                    console.error('Error sending email:', error);
-                });
-
-            } else {
-                alert("No predictions found for the selected date.");
-            }
+    // Send data directly to Node-RED endpoint
+    fetch('http://lezguard.duckdns.org:1880/getPredictionsAndSendEmail', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            date: selectedDate,
+            email: userEmail,
+            event: addEvent
         })
-        .catch(error => {
-            console.error('Error fetching predictions:', error);
-            alert("An error occurred while fetching predictions.");
-        });
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.status === "success") {
+            // Show prediction results
+            const predictionContainer = document.getElementById('predictionContainer');
+            const predictionResult = document.getElementById('predictionResult');
+
+            predictionResult.textContent = `Predicted Emission: ${data.predictions.currentEmissions}\n ZBE Emission: ${data.predictions.zbeEmissions}`;
+            predictionContainer.style.display = 'block'; // Make the container visible
+            alert('Email sent successfully!');
+        } else {
+            alert(`There was an issue processing your request: ${data.message}`);
+        }
+    })
+    .catch(error => {
+        console.error('Error processing request:', error);
+        alert("An error occurred while processing your request. Please try again later.");
+    });
 });
 
   

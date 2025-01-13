@@ -14,15 +14,23 @@ import jakarta.persistence.Table;
 public class Prediction {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)  // o GenerationType.AUTO
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // o GenerationType.AUTO
     @Column(name = "id")
     private Long id;
 
+    @Column(name = "date")
     private LocalDate date;
+
+    @Column(name = "pred_zbe")
     private Double predZbe;
+
+    @Column(name = "pred_co2")
     private Double predCo2;
 
-    // Getters and Setters
+    @Column(name = "add_event") // Nuevo campo para el checkbox
+    private Boolean addEvent;
+
+    // Getters y Setters
 
     public Long getId() {
         return id;
@@ -54,5 +62,13 @@ public class Prediction {
 
     public void setPredCo2(Double predCo2) {
         this.predCo2 = predCo2;
+    }
+
+    public Boolean getAddEvent() {
+        return addEvent;
+    }
+
+    public void setAddEvent(Boolean addEvent) {
+        this.addEvent = addEvent;
     }
 }
