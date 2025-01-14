@@ -180,9 +180,19 @@
             <label for="userEmail" class="form-label">Enter your email:</label>
             <input type="email" class="form-control" id="userEmail" placeholder="example@example.com" required>
         </div>
-    
+
+        <div class="form-check">
+          <input type="checkbox" class="form-check-input" id="addEventCheckbox">
+          <label class="form-check-label" for="addEventCheckbox">Event day?</label>
+        </div>
+        
         <!-- Submit button -->
         <button class="btn btn-primary" id="submitRecommendation">Submit Recommendation</button>
+
+        <div class="mt-4" id="predictionContainer" style="display: none;">
+          <h4>Prediction Results:</h4>
+          <p id="predictionResult">Loading...</p>
+        </div>
     </div>
     </main>
   </div>
