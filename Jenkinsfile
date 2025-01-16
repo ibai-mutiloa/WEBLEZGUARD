@@ -60,6 +60,22 @@ pipeline {
 
         }
 
+        stage('Install Maven') {
+            steps {
+                script {
+                    echo "Instalando Maven..."
+                    sh """
+                        if [ ! -f /usr/local/bin/mvn ]; then
+                            wget https://archive.apache.org/dist/maven/maven-3/3.8.1/binaries/apache-maven-3.8.1-bin.tar.gz
+                            tar -xvzf apache-maven-3.8.1-bin.tar.gz
+                            sudo mv apache-maven-3.8.1 /usr/local/apache-maven
+                            sudo ln -s /usr/local/apache-maven/bin/mvn /usr/local/bin/mvn
+                        fi
+                    """
+                }
+            }
+        }
+
         stage('Run Tests') {
             steps {
                 script {
