@@ -70,8 +70,8 @@ pipeline {
                                 -Dsonar.host.url=http://localhost:9000 \
                                 -Dsonar.java.binaries=target/classes \
                                 -Dsonar.login=${SONAR_TOKEN} \
-                                -Dsonar.jacoco.reportPaths=target/jacoco.exec \
-                                -Dsonar.junit.reportPaths=target/test-classes/TEST-*.xml
+                                -Dsonar.jacoco.reportPaths=target/coverage-reports/jacoco.exec \
+                                -Dsonar.junit.reportPaths=target/surefire-reports/TEST-*.xml
                         """
                     }
                 }
