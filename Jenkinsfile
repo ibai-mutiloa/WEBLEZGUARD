@@ -1,70 +1,45 @@
 pipeline {
-
     agent any
 
     triggers {
-
         githubPush()
-
     }
 
     environment {
-
         SONAR_TOKEN = credentials('sonar-token')
-
         GITHUB_TOKEN = credentials('github-token')
-
     }
 
     stages {
 
         stage('Checkout') {
-
             steps {
-
                 script {
-
                     echo "Realizando checkout y obteniendo el tag"
 
                     // Realiza el checkout del repositorio
-
                     git branch: 'main',
-
-                    credentialsId: 'github-token',
-
-                    url: 'https://github.com/Muti9289/WEBLEZGUARD.git'
+                        credentialsId: 'github-token',
+                        url: 'https://github.com/Muti9289/WEBLEZGUARD.git'
 
                     // Obtenemos el nombre del tag
-
                     def gitTag = sh(script: "git describe --tags --exact-match", returnStdout: true).trim()
 
-                    
-
                     // Comprobamos si se ha encontrado un tag
-
                     if (gitTag) {
-
                         echo "Tag detectado: ${gitTag}"
-
                         env.GIT_TAG_NAME = gitTag  // Asignamos el nombre del tag a la variable de entorno
-
                     } else {
-
                         echo "No se encontró un tag"
-
                     }
-
                 }
-
             }
-
         }
 
         stage('Install Maven & Run Tests') {
             steps {
                 script {
                     sh "mvn --version"
-
                     sh "mvn clean test"
                 }
             }
@@ -95,7 +70,7 @@ pipeline {
                                 -Dsonar.host.url=http://localhost:9000 \
                                 -Dsonar.java.binaries=target/classes \
                                 -Dsonar.login=${SONAR_TOKEN} \
-                                -Dsonar.jacoco.reportPaths=target/jacoco.exec
+                                -Dsonar.jacoco.reportPaths=target/jacoco.exec \
                                 -Dsonar.junit.reportPaths=target/test-classes/TEST-*.xml
                         """
                     }
