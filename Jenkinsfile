@@ -64,7 +64,6 @@ pipeline {
             steps {
                 script {
                     echo "Ejecutando tests con Maven..."
-                    // Ejecuta los tests utilizando Maven
                     sh """
                         mvn clean test
                     """
