@@ -145,7 +145,15 @@ public class VehicleDetailsController {
     public ResponseEntity<String> registerVehicleDetection(@RequestBody String licensePlate) {
         try {
             // Verificar si el vehículo existe
-            Optional<VehicleDetails> vehicle = vehicleDetailsRepository.findByLicensePlate(licensePlate);
+            // Buscar la posición del valor "1336FLG"
+            String prefix = "\"plate\":[\"";
+            String suffix = "\"]";
+
+            // Extraer la parte del valor usando índices
+            int start = licensePlate.indexOf(prefix) + prefix.length();
+            int end = licensePlate.indexOf(suffix, start);
+            String plate = licensePlate.substring(start, end);
+            Optional<VehicleDetails> vehicle = vehicleDetailsRepository.findByLicensePlate(plate);
             if (!vehicle.isPresent()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("El vehículo con la matrícula " + licensePlate + " no se encuentra en la base de datos.");
             }
@@ -155,7 +163,7 @@ public class VehicleDetailsController {
     
             // Crear una nueva relación con la matrícula y la fecha
             VehicleDateRelationship relationship = new VehicleDateRelationship();
-            relationship.setLicensePlate(licensePlate);  // Guardar solo la matrícula como texto
+            relationship.setLicensePlate(plate);  // Guardar solo la matrícula como texto
             relationship.setDatePassed(currentDate);
     
             // Guardar la relación en la base de datos

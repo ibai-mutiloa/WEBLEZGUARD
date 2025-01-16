@@ -5,11 +5,11 @@ window.onload = function () {
 
   // Fetch data from APIs
   Promise.all([ 
-    fetch('http://lezguard.duckdns.org:8080/api/vehicles').then(response => {
+    fetch('http://localhost:8080/api/vehicles').then(response => {
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
       return response.json();
     }),
-    fetch('http://lezguard.duckdns.org:8080/api/vehicles/vehicle-date-relationships').then(response => {
+    fetch('http://localhost:8080/api/vehicles/vehicle-date-relationships').then(response => {
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
       return response.json();
     })
@@ -78,7 +78,7 @@ window.onload = function () {
     }
 
     // Send data directly to Node-RED endpoint
-    fetch('http://lezguard.duckdns.org:1880/getPredictionsAndSendEmail', {
+    fetch('http://localhost:1880/getPredictionsAndSendEmail', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
