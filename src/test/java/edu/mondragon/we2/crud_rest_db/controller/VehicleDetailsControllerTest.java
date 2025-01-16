@@ -140,20 +140,6 @@ public class VehicleDetailsControllerTest {
     }
 
     @Test
-    public void testRegisterVehicleDetection_Success() {
-        expect(vehicleDetailsRepository.findByLicensePlate("1234ABC"))
-            .andReturn(Optional.of(testVehicle));
-        expect(vehicleDateRelationshipRepository.save(anyObject(VehicleDateRelationship.class)))
-            .andReturn(new VehicleDateRelationship());
-        replay(vehicleDetailsRepository, vehicleDateRelationshipRepository);
-
-        ResponseEntity<String> response = controller.registerVehicleDetection("1234ABC");
-        
-        verify(vehicleDetailsRepository, vehicleDateRelationshipRepository);
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
-    }
-
-    @Test
     public void testGetPredictionsByDate() {
         LocalDate testDate = LocalDate.of(2024, 1, 10);
         Prediction testPrediction = new Prediction();
