@@ -60,6 +60,18 @@ pipeline {
 
         }
 
+        stage('Run Tests') {
+            steps {
+                script {
+                    echo "Ejecutando tests con Maven..."
+                    // Ejecuta los tests utilizando Maven
+                    sh """
+                        mvn clean test
+                    """
+                }
+            }
+        }
+
         stage('SonarQube Analysis') {
 
             when {
@@ -92,6 +104,8 @@ pipeline {
                                 -Dsonar.host.url=http://localhost:9000 \
                                 -Dsonar.java.binaries=* \
                                 -Dsonar.login=${SONAR_TOKEN}
+                                -Dsonar.junit.reportPaths=target/test-classes/TEST-*.xml \
+                                -Dsonar.python.coverage.reportPaths=coverage.xml
                         """
                     }
                 }
