@@ -60,30 +60,13 @@ pipeline {
 
         }
 
-        stage('Install Maven') {
+        stage('Install Maven & Run Tests') {
             steps {
                 script {
-                    echo "Instalando Maven..."
-                    sh """
-                        if [ ! -f /usr/local/bin/mvn ]; then
-                            wget https://archive.apache.org/dist/maven/maven-3/3.8.1/binaries/apache-maven-3.8.1-bin.tar.gz
-                            tar -xvzf apache-maven-3.8.1-bin.tar.gz
-                            sudo mv apache-maven-3.8.1 /usr/local/apache-maven
-                            sudo ln -s /usr/local/apache-maven/bin/mvn /usr/local/bin/mvn
-                        fi
-                    """
-                }
-            }
-        }
+                    // Asegúrate de que Maven está instalado
+                    sh "mvn --version"
 
-        stage('Run Tests') {
-            steps {
-                script {
-                    echo "Ejecutando tests con Maven..."
-                    sh """
-                        mvn clean test
-                    """
-                }
+                    sh "mvn test -Dtest=src/test/java/edu/mondragon/we2/crud_rest_db, src/test/java/edu/mondragon/we2/crud_rest_db/controller, src/test/java/edu/mondragon/we2/crud_rest_db/model"
             }
         }
 
