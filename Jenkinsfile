@@ -66,7 +66,7 @@ pipeline {
                     // Asegúrate de que Maven está instalado
                     sh "mvn --version"
 
-                    sh "mvn test -Dtest=src/test/java/edu/mondragon/we2/crud_rest_db, src/test/java/edu/mondragon/we2/crud_rest_db/controller, src/test/java/edu/mondragon/we2/crud_rest_db/model"
+                    sh "mvn clean test -Dtest=src/test/java/edu/mondragon/we2/crud_rest_db, src/test/java/edu/mondragon/we2/crud_rest_db/controller, src/test/java/edu/mondragon/we2/crud_rest_db/model"
             }
         }
 
