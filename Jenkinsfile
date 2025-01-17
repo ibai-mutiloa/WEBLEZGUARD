@@ -66,7 +66,7 @@ pipeline {
 
                             ${sonarScannerPath} \
                                 -Dsonar.projectKey=StaticAnalisis_LEZGuard_WEB \
-                                -Dsonar.sources=src/ \
+                                -Dsonar.sources=src/main/ \
                                 -Dsonar.host.url=http://localhost:9000 \
                                 -Dsonar.java.binaries=target/classes \
                                 -Dsonar.login=${SONAR_TOKEN} \
