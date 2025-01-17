@@ -54,4 +54,19 @@ public class PredictionTest {
         assertEquals(Double.valueOf(120.0), prediction.getPredZbe());
         assertEquals(Double.valueOf(300.0), prediction.getPredCo2());
     }
+
+    @Test
+    public void testGetAndSetAddEvent() {
+        prediction.setAddEvent(true);
+        assertEquals(Boolean.TRUE, prediction.getAddEvent());
+    
+        prediction.setAddEvent(false);
+        assertEquals(Boolean.FALSE, prediction.getAddEvent());
+    }
+
+    @Test
+    public void testAddEventDefaultValue() {
+        // Verifica que el valor por defecto es null
+        assertNull(prediction.getAddEvent());
+    }
 }
