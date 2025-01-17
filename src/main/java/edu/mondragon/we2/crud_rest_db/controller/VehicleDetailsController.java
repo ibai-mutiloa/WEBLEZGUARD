@@ -19,6 +19,7 @@ import edu.mondragon.we2.crud_rest_db.model.VehicleDetailsRepository;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 @CrossOrigin(origins = "http://localhost:8080")
 @RestController
@@ -39,6 +40,9 @@ public class VehicleDetailsController {
 
     @Autowired
     private VehicleDateRelationshipRepository vehicleDateRelationshipRepository;
+
+    private static final String ERROR_MESSAGE = "An unexpected error occurred. Please contact support.";
+    private static final Logger logger = Logger.getLogger(VehicleDetailsController.class.getName());
 
     // Get all vehicle details
     @GetMapping
@@ -84,7 +88,7 @@ public class VehicleDetailsController {
             VehicleDetails savedVehicle = vehicleDetailsRepository.save(vehicleDetails);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedVehicle);
         } catch (Exception e) {
-            System.out.println("An unexpected error occurred. Please contact support.");
+            logger.severe(ERROR_MESSAGE);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); // 500 Internal Server Error
         }
     }
@@ -171,7 +175,7 @@ public class VehicleDetailsController {
     
             return ResponseEntity.status(HttpStatus.CREATED).body("Detección registrada para el vehículo con matrícula " + licensePlate + " en la fecha " + currentDate);
         } catch (Exception e) {
-            System.out.println("An unexpected error occurred. Please contact support.");
+            logger.severe(ERROR_MESSAGE);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al registrar la detección.");
         }
     }  
@@ -188,7 +192,7 @@ public class VehicleDetailsController {
             return ResponseEntity.status(HttpStatus.CREATED).body(savedPrediction); // 201 Created
 
         } catch (Exception e) {
-            System.out.println("An unexpected error occurred. Please contact support.");
+            logger.severe(ERROR_MESSAGE);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); // 500 Internal Server Error
         }
     }
@@ -209,7 +213,7 @@ public class VehicleDetailsController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     } catch (Exception e) {
-        System.out.println("An unexpected error occurred. Please contact support.");
+        logger.severe(ERROR_MESSAGE);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
     }
