@@ -84,7 +84,7 @@ public class VehicleDetailsController {
             VehicleDetails savedVehicle = vehicleDetailsRepository.save(vehicleDetails);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedVehicle);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("An unexpected error occurred. Please contact support.");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); // 500 Internal Server Error
         }
     }
@@ -171,7 +171,7 @@ public class VehicleDetailsController {
     
             return ResponseEntity.status(HttpStatus.CREATED).body("Detección registrada para el vehículo con matrícula " + licensePlate + " en la fecha " + currentDate);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("An unexpected error occurred. Please contact support.");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al registrar la detección.");
         }
     }  
@@ -188,7 +188,7 @@ public class VehicleDetailsController {
             return ResponseEntity.status(HttpStatus.CREATED).body(savedPrediction); // 201 Created
 
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("An unexpected error occurred. Please contact support.");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); // 500 Internal Server Error
         }
     }
@@ -209,7 +209,7 @@ public class VehicleDetailsController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     } catch (Exception e) {
-        e.printStackTrace();
+        System.out.println("An unexpected error occurred. Please contact support.");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
     }
