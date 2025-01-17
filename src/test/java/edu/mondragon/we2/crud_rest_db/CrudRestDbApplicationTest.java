@@ -1,6 +1,8 @@
 package edu.mondragon.we2.crud_rest_db;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,10 @@ public class CrudRestDbApplicationTest {
 
     @Test
     public void applicationStarts() {
+    try {
         CrudRestDbApplication.main(new String[] {});
+    } catch (Exception e) {
+        fail("Application failed to start: " + e.getMessage());
     }
+}
 }

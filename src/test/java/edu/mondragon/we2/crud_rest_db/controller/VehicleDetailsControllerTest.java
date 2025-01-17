@@ -213,6 +213,21 @@ public void testAddVehicle_WithInvalidLocation() {
 }
 
 @Test
+public void testAddVehicle_WithNullLocation() {
+    // Crear vehículo con location null
+    VehicleDetails vehicleWithNullLocation = new VehicleDetails();
+    vehicleWithNullLocation.setLocation(null);
+    
+    expect(vehicleDetailsRepository.save(vehicleWithNullLocation)).andReturn(vehicleWithNullLocation);
+    replay(vehicleDetailsRepository);
+
+    ResponseEntity<VehicleDetails> response = controller.addVehicle(vehicleWithNullLocation);
+    
+    verify(vehicleDetailsRepository);
+    assertEquals(HttpStatus.CREATED, response.getStatusCode());
+}
+
+@Test
 public void testAddVehicle_WithException() {
     expect(locationRepository.findById(1)).andThrow(new RuntimeException("Database error"));
     replay(locationRepository);
@@ -248,6 +263,22 @@ public void testUpdateVehicle_NotFound() {
     
     verify(vehicleDetailsRepository);
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+}
+
+@Test
+public void testUpdateVehicle_WithNullLocation() {
+    VehicleDetails existingVehicle = new VehicleDetails();
+    VehicleDetails updatedVehicle = new VehicleDetails();
+    updatedVehicle.setLocation(null);
+    
+    expect(vehicleDetailsRepository.findById("1234ABC")).andReturn(Optional.of(existingVehicle));
+    expect(vehicleDetailsRepository.save(anyObject(VehicleDetails.class))).andReturn(updatedVehicle);
+    replay(vehicleDetailsRepository);
+
+    ResponseEntity<VehicleDetails> response = controller.updateVehicle("1234ABC", updatedVehicle);
+    
+    verify(vehicleDetailsRepository);
+    assertEquals(HttpStatus.OK, response.getStatusCode());
 }
 
 @Test
@@ -326,6 +357,33 @@ public void testInsertPrediction_InvalidData() {
     ResponseEntity<Prediction> response = controller.insertPrediction(invalidPrediction);
     
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+}
+
+@Test
+public void testInsertPrediction_NullFields() {
+    Prediction prediction = new Prediction();
+    // No establecemos ningún valor, dejando los campos en null
+    
+    ResponseEntity<Prediction> response = controller.insertPrediction(prediction);
+    
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+}
+
+@Test
+public void testInsertPrediction_DatabaseError() {
+    Prediction prediction = new Prediction();
+    prediction.setDate(LocalDate.now());
+    prediction.setPredZbe(100.0);
+    prediction.setPredCo2(200.0);
+    
+    expect(predictionRepository.save(prediction))
+        .andThrow(new RuntimeException("Database error"));
+    replay(predictionRepository);
+
+    ResponseEntity<Prediction> response = controller.insertPrediction(prediction);
+    
+    verify(predictionRepository);
+    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
 }
 
 @Test
